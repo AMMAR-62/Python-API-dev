@@ -1,0 +1,34 @@
+needs of virtual environments?
+project 1 -> fast api v1.2.1
+new project 2 -> fast api v2.4.3
+upgrade fast api
+this may be a problem, if the fast api version is not compatible with other project
+the projects need different versions
+isolated environments, virtual environments.
+
+==============================================
+
+interpreter in the virtual environment needs to be used so we change the interpreter
+
+==============================================
+why we need a schema:
+ - it's a pain to get all the values from the body.
+ - the client can send whatever data they want.
+ - the data isn't getting validated.
+ - we ultimately want to force the client to send data in a schema that we expect.
+ - the pydantic is used for defining the schema.
+ - we use the pydantic models which are the similar to the mongoose models in the MERN stack.
+ - pydantic models can be converted to the dictionary by using the .dict() method.
+
+==============================================
+CRUD - create, read, update, delete - four main functions of the api.
+create - post.
+read - get
+update - put/patch
+delete - delete
+
+ - we always use the plurals, it's the convention.
+ - like /posts, /posts/:id, /posts, etc.
+ - we use the curly braces for the argument like {id}
+ - patch - for specific field.
+ - put - all of the same information, and change the field we need.
