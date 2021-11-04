@@ -15,6 +15,9 @@ from fastapi import FastAPI, Response, status, HTTPException
 # from fastapi.params import Body
 from pydantic import BaseModel
 from random import randrange
+import psycopg2
+from psycopg2.extras import RealDictCursor
+import time
 
 
 
@@ -27,11 +30,29 @@ def find_posts(id):
         if p["id"] == id:
             return p
 
+def find_index_post(id):
+    for i, p in enumerate(my_posts):
+        if p['id'] == id:
+            return i
+
 class Post(BaseModel):
     title: str
     content: str
     published: bool = True #sets the default value to true.
     rating: Optional[int] = None #completely optional field of type integer.
+
+# Making the database connection, the psycopg2 library helps us to connect and get the cursor.
+# the library works in a similar way to sqlite library where we make the commits after every change.
+# and there is a cursor for the current changes.
+while True:
+    try:
+        conn = psycopg2.connect(host='localhost', database='fastapi', user='postgres', password='F0rgivene$$', cursor_factory=RealDictCursor)
+        cursor = conn.cursor()
+        print("Database connection was successfull!")
+        break
+    except Exception as e:
+        print(f"Database connection failed \nerror: \n\n {e}")
+        time.sleep(2)
 # this is the path operation or the route
 #  made of function and a decorator
 # for the asynchronous task, we pass the async task
@@ -68,3 +89,26 @@ def get_post(id: int, response: Response): #internal checking by fastapi from st
         # response.status_code = status.HTTP_404_NOT_FOUND #if the post is not found, then send not found error.
         # return {"messsage": f"post with {id} was not found"}
     return {"post_detail": f"here is post : {post}"}
+
+# the status 204 implicitly means that you are not meant to send any data back, hence we need to wrap the response object.
+@app.delete("/posts/{id}", status_code = status.HTTP_204_NO_CONTENT)
+def delete_post(id: int):
+    #deleting post
+    # find the index in the array that has the require id.
+    # my_posts.pop(id)
+    index = find_index_post(id)
+    if(index == None):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} does not exists")
+    my_posts.pop(index)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+@app.put("/posts/{id}")
+def update_post(id: int, post: Post):
+    index = find_index_post(id) #finds the index with the post with the specific id, so that it can be updated.
+    if(index == None):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} does not exists")
+    my_posts.pop(index) #returns an exception if the post was not found in the data.
+    post_dict = post.dict()
+    post_dict['id'] = id #adds the id to the data, since externally there is no id passed.
+    my_posts[index] = post_dict #the post is then updated by the converting the post to the dictionary format.
+    return {'data': f"{post_dict} \nwas added"} #returns a success message

@@ -32,3 +32,76 @@ delete - delete
  - we use the curly braces for the argument like {id}
  - patch - for specific field.
  - put - all of the same information, and change the field we need.
+
+===============================================
+we refractor the code as:
+ - the fast api provides in built support for the documentation.
+ - it is powered by swagger ui.
+ - for any folder to act as a package python requires you to store the __init__.py file in it.
+what is a database:
+ - Collection of organised data that can be easily accessed and managed.
+ - we don't work or interact with database directly.
+ - instead we make use of a software referred to as a database management system.
+ - relational - mysql, postgresql, oracle, sql server.
+ - nosql - mongodb, dynamodb, oracle, sql server.
+relational database and sql:
+ - structured query language - languase used to communicate with the database.
+ - each instance of postgres can be carved into multiple separate databases.
+ - by default every postgres, installation comes with one database already created called postgres.
+ - this is important because postgres requires you to specify the name of a database to make a connection, so there needs to be always be one database.
+tables:
+ - a table represents a subject or event in an application.
+ - users, products, purchases, can be tables of an e-commerce application.
+columns and rows:
+ - a table is made up of columns and rows.
+ - each column represents a different attribute.
+ - each row represents a different entry in the table.
+postgres datatype:
+ - database have datatypes just like any programming language.
+ - postgres -> numeric (int, decimal, precision), text(varchar, text), bool(boolean), sequence(array)
+primary key:
+ - is a column or group of column that uniquely identifies each row in a table.
+ - table can have one and only one primary key.
+ - each entry must be unique, no duplicates.
+ - the primary key does not have to be the ID column always. It's up to you to decide which column uniquely defines each record.
+ - in this example, since an email can only be registered once, the email column can also be used as the primary key.
+unique constraints:
+ - a unique constraint can be applied to any column to make sure every record has a unique value for that column.
+null constraints:
+ - by default, when adding a new entry to a database, any column can be left blank, when a column is left blank, it has a null value.
+ - if you need column to be properly filled in to create a new record, a NOT NULL constraint can be added to the column to ensure that the column is never left blank.
+ - creating the database.
+CREATE DATABASE fastapi
+    WITH 
+    OWNER = postgres
+    ENCODING = 'UTF8'
+    CONNECTION LIMIT = -1;
+-- SELECT * FROM products;
+-- SELECT name FROM products;
+-- SELECT name, id, price FROM products;
+-- SELECT id as product_id FROM products;
+-- SELECT * FROM products WHERE id=12;
+-- SELECT * FROM products WHERE inventory = 0;
+-- SELECT * FROM products WHERE name = 'Laptop';
+-- SELECT * FROM products WHERE price>5000;
+-- SELECT * FROM products WHERE price<5000;
+-- SELECT * FROM products WHERE inventory<>0;
+-- SELECT * FROM products WHERE inventory>0 AND price>4000;
+-- SELECT * FROM products WHERE id = 1 or id=2 or id=3;
+-- SELECT * FROM products WHERE id IN (1,2,3);
+-- SELECT * FROM products ORDER BY price;
+-- SELECT * FROM products ORDER BY inventory DESC, price ASC;
+-- SELECT * FROM products ORDER BY created_at DESC;
+-- SELECT * FROM products WHERE price>5000 ORDER BY price;
+-- SELECT * FROM products WHERE price>10 LIMIT 5;
+-- SELECT * FROM products ORDER BY id LIMIT 5;
+-- SELECT * FROM products ORDER BY id LIMIT 5 OFFSET 2;
+-- INSERT INTO products (name, price, inventory) VALUES ('tortilla', 4, 1000);
+-- INSERT INTO products (price, name, inventory) VALUES (5000,'Showcase' , 1000);
+-- INSERT INTO products (price, name, inventory) VALUES (30000,'Computer' , 1000) returning *;
+-- INSERT INTO products (price, name, inventory) VALUES (7000,'Water Filter', 1000), (8000, 'Wooden Almirah', 1) returning *;
+-- DELETE FROM products WHERE Id =11;
+-- DELETE FROM products WHERE id = 12 RETURNING *;
+-- DELETE FROM products WHERE inventory=0 RETURNING *;
+-- UPDATE products SET name='Electronic Filter', price=15000 WHERE id=25;
+-- UPDATE products SET name='Eletric Car', price=3000000 WHERE name='Car' RETURNING *;
