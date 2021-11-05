@@ -63,7 +63,9 @@ def root():
 
 @app.get("/posts")
 def get_posts():
-    return {"message": my_posts}
+    cursor.execute("SELECT * FROM posts")
+    posts = cursor.fetchall()
+    return {"data": posts}
 
 @app.post("/posts", status_code= status.HTTP_201_CREATED)
 # this is the extraction logic from the body, it converts the body into the dictionary and stores it in the payload
@@ -74,21 +76,27 @@ def create_posts(post: Post): #this is from the pydantic model and we have defin
     # print(post)
     # return {"new_post": f"title: {payload['title']} content: {payload['content']}"}
     # print ("new_post: ",  f"{post.dict()}")
-    post_dict = post.dict()
-    post_dict['id'] = randrange(0, 9999999)
-    my_posts.append(post_dict)
+    # post_dict = post.dict()
+    # post_dict['id'] = randrange(0, 9999999)
+    # my_posts.append(post_dict)
     # return {"new_post": f"{post.dict()}"}
-    return {"data": f"{post_dict}"}
+    # we do not use the fstring here directly because it's vulnerable to SQL injection.
+    cursor.execute("""INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING *""", (post.title, post.content, post.published)) #this makes sure that we are not vulnerable to sql injection.
+    new_post = cursor.fetchone()
+    conn.commit() #commit for saving the changes.
+    return {"data": f"{new_post}"}
     # for a post request we want the title and the content, and they both are necessary.
 
 @app.get('/posts/{id}') # the id field is also known as the path parameter
 def get_post(id: int, response: Response): #internal checking by fastapi from string to int conversion.
+    cursor.execute("""SELECT * FROM posts WHERE id= %s """, (id))
+    test_post = cursor.fetchone()
     post = find_posts(id)
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail= f"post with id:{id} was not found")
         # response.status_code = status.HTTP_404_NOT_FOUND #if the post is not found, then send not found error.
         # return {"messsage": f"post with {id} was not found"}
-    return {"post_detail": f"here is post : {post}"}
+    return {"post_detail": f"here is post : {test_post}"}
 
 # the status 204 implicitly means that you are not meant to send any data back, hence we need to wrap the response object.
 @app.delete("/posts/{id}", status_code = status.HTTP_204_NO_CONTENT)
