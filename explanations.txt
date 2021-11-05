@@ -117,4 +117,12 @@ WHAT CAN ORMs DO:
 SQLALCHEMY:
 - SqlAlchemy is one of the most popular python ORMs.
  - It is a standalone library and has no association with FastAPI. It can be use with any other python web frameworks or any python based application.
+however sqlalchemy is not sufficient for modifying the tables and things like that.
+ - we can use the alembic software for more support.
 
+Schema Models vs. ORM Models:
+ - Schema/Pydantic Models define the structure of a request and response.
+ - This ensure that when a user wants to create a post, the request will only go through if it has a "title" and "content" in the body.
+SQLALCHEMY MODELS:
+ - responsible for defining the columns of our "posts" table within postgres.
+ - is used to query, create, delete and update entries within the database.
