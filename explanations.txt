@@ -105,3 +105,16 @@ CREATE DATABASE fastapi
 -- DELETE FROM products WHERE inventory=0 RETURNING *;
 -- UPDATE products SET name='Electronic Filter', price=15000 WHERE id=25;
 -- UPDATE products SET name='Eletric Car', price=3000000 WHERE name='Car' RETURNING *;
+
+===============================================
+OBJECT RELATIONAL MODEL:
+ -  Layer of abstraction that sits between the database and use.
+ - We can perform all database operations through traditional python code. No more SQL!
+ - instead of using raw sql, we use the raw python code.
+WHAT CAN ORMs DO:
+ - Instead of manually defining tables in postgres, we can define our tables as python models.
+  - Queries can be made exclusively through python code. No SQL is necessary.
+SQLALCHEMY:
+- SqlAlchemy is one of the most popular python ORMs.
+ - It is a standalone library and has no association with FastAPI. It can be use with any other python web frameworks or any python based application.
+

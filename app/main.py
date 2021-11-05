@@ -62,32 +62,32 @@ def create_posts(post: Post):
     cursor.execute("""INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING *""", (post.title, post.content, post.published)) #this makes sure that we are not vulnerable to sql injection.
     new_post = cursor.fetchone()
     conn.commit() 
-    return {"data": f"{new_post}"}
+    return f"{new_post}"
 
+# get post with an id
 @app.get('/posts/{id}')
 def get_post(id: int, response: Response):
-    cursor.execute("""SELECT * FROM posts WHERE id= %s """, (id))
-    test_post = cursor.fetchone()
-    post = find_posts(id)
+    cursor.execute("""SELECT * FROM posts WHERE id= %s """, (str(id),)) #int object does not support indexing, we convert it into string and not the argument so that the user can pass it as integer, 
+    post = cursor.fetchone()
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail= f"post with id:{id} was not found")
-    return {"post_detail": f"here is post : {test_post}"}
+    return f"{post}"
 
 @app.delete("/posts/{id}", status_code = status.HTTP_204_NO_CONTENT)
 def delete_post(id: int):
-    index = find_index_post(id)
-    if(index == None):
+    cursor.execute("""DELETE FROM posts WHERE id = %s returning *""", (str(id),))
+    deleted_post = cursor.fetchone()
+    conn.commit() # we commit to the connection and not the cursor.
+    if(deleted_post == None):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} does not exists")
-    my_posts.pop(index)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 @app.put("/posts/{id}")
 def update_post(id: int, post: Post):
-    index = find_index_post(id)
-    if(index == None):
+    cursor.execute("""UPDATE posts SET title= %s, content = %s, published = %s WHERE id = %s RETURNING *""", (post.title, post.content, post.published, str(id)))
+    updated_posts = cursor.fetchone()
+    conn.commit()
+    if(updated_posts == None):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} does not exists")
-    my_posts.pop(index)
-    post_dict = post.dict()
-    post_dict['id'] = id
-    my_posts[index] = post_dict 
-    return {'data': f"{post_dict} \nwas added"} 
+
+    return f"{updated_posts}"
