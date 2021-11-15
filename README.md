@@ -1,2 +1,14 @@
 # Python-API-dev
  - Project using fastapi library in python
+ - Using Pydantic models.
+ - Using postgres
+ - Using ORM layer "sqlalchemy"
+ - practicing SQL queries.
+ - using postman (chrome extension).
+ - Creating middleware.
+ - Learning about requests, reponse, reponse codes
+ - dependencies in requirements.txt (pip install -r requirements.txt)
+ - using virtual environments in python.
+ - Using watchgod and uvicorn libraries for establishing a server.
+ - To be continued by adding jwt token and authentication, by implementing functionality for user auth token (bearer).
+ - docs to be deployed on heroku.
