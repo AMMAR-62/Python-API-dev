@@ -126,3 +126,12 @@ Schema Models vs. ORM Models:
 SQLALCHEMY MODELS:
  - responsible for defining the columns of our "posts" table within postgres.
  - is used to query, create, delete and update entries within the database.
+
+===============================================
+JWT Token Authentication:
+ - Client, API: two main ways, session based authentication, to track whether a user is logged, and when the user is logged out.
+ - it's stateless, there is nothing on the database, nothing on the api, etc, we do not store, it's stored on the frontend.
+ - if the credentials match up, then we make the jwt token, the client doesn't know and doesn't cares about the tokens.
+ - api is going to find that if it's a valid token, you provide the authentication, provide the token.
+ - components of a tokens are: - it's not encrypted, header (includes metadata about the token), payload (is upto us, we can send anything that we want, the token itself is not encrypted, we don't put any password or secrets in the payload), signature (contains the combination of header, payload and token secret, we use the signature to know that this is the user)
+ -   

@@ -1,5 +1,8 @@
+from typing import Optional
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
+
+from sqlalchemy.sql.sqltypes import TIMESTAMP
 
 class PostBase(BaseModel):
     title: str
@@ -15,6 +18,25 @@ class Post(PostBase):
     class Config:
         orm_mode = True
 
+# handled just for creating the users.
 class UserCreate(BaseModel):
-    email: str
-    password: EmailStr
+    email: EmailStr
+    password: str
+
+class UserOut(BaseModel):
+    id: int
+    email: EmailStr
+    created_at: datetime
+    class Config:
+        orm_mode = True
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    id: Optional[str] = None
