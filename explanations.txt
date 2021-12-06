@@ -133,5 +133,102 @@ JWT Token Authentication:
  - it's stateless, there is nothing on the database, nothing on the api, etc, we do not store, it's stored on the frontend.
  - if the credentials match up, then we make the jwt token, the client doesn't know and doesn't cares about the tokens.
  - api is going to find that if it's a valid token, you provide the authentication, provide the token.
- - components of a tokens are: - it's not encrypted, header (includes metadata about the token), payload (is upto us, we can send anything that we want, the token itself is not encrypted, we don't put any password or secrets in the payload), signature (contains the combination of header, payload and token secret, we use the signature to know that this is the user)
- -   
+ - components of a tokens are: - it's not encrypted, header (includes metadata about the token), payload (is upto us, we can send anything that we want, the token itself is not encrypted, we don't put any password or secrets in the payload, it includes info such as id of the user, the role of the user, privileged or regular user,etc), signature (contains the combination of header, payload and token secret, we use the signature to know that this is the user)
+ - the signature is used to check if the token is valid, there is no encryption, jwt token is just for data integrity.
+ - the password, the special password for the jwt token is only stored on the server and nowhere else.
+ - anybody can change the data of the token, but they can't generate the actual signature needed for a different information.
+
+Relationships:
+ - posts, users
+ - any other applications, posts on the feed, every post is ultimately associated with the user account.
+ - there is nothing that ties the user to the post table.
+ - how do we know which post is related to which users.
+ - we need to setup special relationships, to associate the post to the user.
+ - in postgres, we do this, by creating a column with the foreign key, it's a way of telling SQL that the column is connected to the other table.
+ - we specify which specific column is it connected to, this just relates the tables.
+ - two users can't create a single post and one user can create multiple posts.
+ - it is one to many relationship b/w the user and the post.
+ - it's going to check before inserting that the id is peresent before inserting into the table.
+ - SELECT * FROM public.users WHERE user_id = 17.
+ - DELETE FROM users WHERE id=17;
+ - SELECT * FROM posts;
+ - join allows us to jam up the multiple columns 
+ - SELECT * FROM users WHERE user = id;
+
+===============================================
+.env file:
+  - environment variables are to be kept in the .env file.
+  - pydantic models can be used to set the environment models.
+  - this performs the validation for our environment variables.
+  - we set up a class which extends BaseSettings.
+  - we want it put outside the app directory, as the default location accepted by pydantic is before the project.
+
+===============================================
+voting/like systems requirements:
+ - Users should able to like a post.
+ - Should only be able to like a post once.
+ - retrieving posts should also fetch the total number of likes.
+
+Vote Model"
+ - Column referencing post id.
+ - Column referencing id of user who like the post.
+ - A user should only be able to like a post once so this means than we need to ensure every post_id / voter_id is a unique combination.
+
+composite keys:
+ - primary keys that spans multiple columns.
+ - since primary keys must be unique, this will ensure no user can like a post twice.
+
+===============================================
+Vote Route:
+ - Path will be at "/vote"
+ - the user id will be extracted from the JWT token.
+ - the body will contain the id of the post the user is voting on as well as the direction of the vote.
+ - a vote direction of 1 means we want to add a vote, a direction of 0 means we want to delete a vote.
+
+ ===============================================
+ we are going to joins more or less in complex relationships and tables, retreiving data from different tables, is kind of inefficient and multiple queries are not practical.
+ we start of the query and make joins in the table and match the matching columsn and return the joins of the table.
+-- SELECT * FROM posts LEFT JOIN users ON posts.owner_id = users.id
+-- SELECT title, content, email FROM posts LEFT JOIN users on posts.owner_id = users.id
+-- SELECT posts.id, email FROM posts LEFT JOIN users ON posts.owner_id = users.id
+-- SELECT posts.*, email FROM posts LEFT JOIN users ON posts.owner_id = users.id
+left join - shows something that always exist on the left table and not on the right table and the right table values are replace by null, vice versa is true for right join.
+-- SELECT users.id, users.email, COUNT(posts.id) FROM posts RIGHT JOIN users ON posts.owner_id = users.id GROUP BY users.id
+-- SELECT posts.id, COUNT(votes.post_id) FROM  posts LEFT JOIN votes ON posts.id = votes.post_id GROUP BY posts.id;
+
+===============================================
+Developers track changes to code and rollback code easily with GIT. Why can't we do the same for database models/tables
+Database migrations allows us to incrementally track changes to database schema and rollback changes to any point in time.
+We will use a tool called Alembic to make changes to our database.
+Alembic can also automatically pull database models from SqlAlchemy and generate the proper tables.
+
+===============================================
+About alembic:
+ - revisions - this helps you track the changes in the database configuration and schema.
+ - alembic revision -m
+ - alembic revision -m "create posts table" -> this creates the create_posts_table.py file is created under the versions folder.
+ - in this file there is the upgrade and the downgrade functions where we need to define thhe action when we need to change the actions performed.
+ - this is manual and it's not automatically done in alembic.
+ - whenevere we upgrad to downgrade we say alembic upgrade revision_identifier, or alembic downgrade revision_identifier, this upgrades or downgrades the version.
+ - there is also other options of history, current, etc to see different revisions.
+ - alembic creates an extra table for keeping track of the revisions, this is done in the database as provided in the sqlalchemy url which is provided for in the alembic.ini file.
+ - there is also an up and down revision for each version, this gives the opportunity to revert/rollback from the current revision to the revision in history.
+ - the head in the alembic revision refers to the latest version added and it can be not upgraded but the current refers to the upgraded versions.
+ - in alembic downgrade command we can give the parameter as the revision number or the number of upgrades from the current, this downgrades to the nth previous upgrade
+ - alembic takes in the sqlalchemy models and can craete the exact tables and columns and constraints using these models, and we do not need to specify externally. - this can be done with the help of --autogenerate option.\
+
+===============================================
+The CORS policy:
+ - Cross Origin Resource Sharing (CORS) allows you to make requests from a web browser on one domain to a server on a different domain.
+ - By default our API will only allow web browsers running on the same domain as our server to make requests to it.
+ - we import the CORS middleware 
+
+===============================================
+we deploy the application on Heroku
+we create the heroku app by saying -> heroku create app_name.
+this creates the remote, just like git named heroku for the project.
+we can push on this remote just like github.
+we need to create the "Procfile" -> this tells heroku about what to do with the code.
+- we give the configurations as -> web: uvicorn app.main:app --host=0.0.0.0 --port=${PORT:-5000}
+- this tells heroku to run the app using uvicorn and host it on global default, so that anyone can access it, and the port number to be 5000 if the default "PORT" variable is not availabel with heroku.
+
